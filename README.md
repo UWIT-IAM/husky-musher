@@ -1,7 +1,7 @@
 # husky-musher
 
 This is a fork of the original Husky Musher redirecting service for the
-UW Husky Coronavirus Testing study. This fork only adapts the survey 
+UW Husky Coronavirus Testing study. This fork only adapts the survey
 redirect modules, but also productionizes the application for
 deployment.
 
@@ -17,28 +17,28 @@ deployment.
 As long as you have a docker client, you can run an existing build.
 
 1. [View the package in Github](https://github.com/UWIT-IAM/husky-musher/blob/main/husky_musher/settings.py#L8)
-2. Find the tag you are interested in running (usually the newest tag is your best 
+2. Find the tag you are interested in running (usually the newest tag is your best
    option) and copy it to your clipboard
 3. In your terminal, run `docker pull ghcr.io/uwit-iam/husky-musher:<tag>`
 4. Then, run `docker run -it -p 8000:8000 ghcr.io/uwit-iam/husky-musher:<tag>`
     - Replace `<tag>` with the tag you copied to your clipboard.
-    - Add `--env-file local.env` before the `ghcr` argument if you followed the 
-      [environment variables](#environment-variables) 
+    - Add `--env-file local.env` before the `ghcr` argument if you followed the
+      [environment variables](#environment-variables)
       instructions and have all the necessary variables handy.
 
 ### Run from local source
 
 #### If you have `bash` installed:
 
-Recommended; this will typically build faster because 
-it is dependency-aware and uses some common optimization practices 
+Recommended; this will typically build faster because
+it is dependency-aware and uses some common optimization practices
 shared between UW-IT IAM projects.
- 
-```
-./scripts/build-images.sh --run 
-``` 
 
-This will automatically look for a `local.env` file if you don't provide an 
+```
+./scripts/build-images.sh --run
+```
+
+This will automatically look for a `local.env` file if you don't provide an
 `--env-file` argument; if `local.env` is not found, the application will boot
 but may not actually do much.
 
@@ -49,7 +49,7 @@ docker build . -t husky-musher:local
 docker run  \
    # Omit the --env-file argument if you have not generated an env-file to use
    --env-file local.dotenv \
-   # Omit the `--mount` argument if you do not want to sync 
+   # Omit the `--mount` argument if you do not want to sync
    # the running container with your local changes
    --mount type=bind,source=$(pwd)/husky_musher,target=/musher/husky_musher"
    -p 8000:8000 \
@@ -59,7 +59,7 @@ docker run  \
 ## Running without docker
 
 If you are actively developing, you may be interested in running this
-directly from source without docker, for debugging purposes. 
+directly from source without docker, for debugging purposes.
 
 No problem!
 
@@ -93,7 +93,7 @@ poetry install
 You should also think about creating an env file to export
 environment variables; see [environment variables](#environment-variables).
 
-Otherwise . . . 
+Otherwise . . .
 
 #### Manual setup:
 
@@ -101,7 +101,7 @@ First, [get poetry](https://python-poetry.org/docs/#installation). Poetry makes 
 to manage application versions and dependency versions consistently and safely.
 
 Set up your local environment to use python version 3.7+. If you don't
-know how to manage python versions, 
+know how to manage python versions,
 see [managing python versions](#managing-python-versions).
 
 ```
@@ -116,12 +116,12 @@ environment variables; see [environment variables](#environment-variables).
 #### Managing python versions
 
 [pyenv](https://github.com/pyenv/pyenv) is great for this, as long as you
-are not using Windows. If you are using Windows, please see the notes in 
+are not using Windows. If you are using Windows, please see the notes in
 the pyenv installation docs.
 
 ```
 pyenv install 3.8.6
-# Test the install: 
+# Test the install:
 ~/.pyenv/versions/3.8.6/bin/python --version
 ```
 
@@ -144,8 +144,12 @@ REDCAP_STUDY_START_DATE=2021-10-12
 FLASK_APP=husky_musher.app
 FLASK_ENV=development
 
-netid=<your_netid>
-uid=<your_netid>@uw.edu
+#netid=<your_netid>
+#uid=<your_netid>@uw.edu
+uid=<your_netid>
+mail=<your_netid>@uw.edu
+givenName=<your_firstname>
+surname=<your_lastname>
 REMOTE_USER=<your_netid>@uw.edu
 ```
 

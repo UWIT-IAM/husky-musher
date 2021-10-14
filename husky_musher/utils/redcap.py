@@ -99,17 +99,18 @@ class REDCapClient:
         Raises an :class:`AssertionError` if REDCap returns multiple matches for the
         given *user_info*.
         """
-        netid = user_info["netid"]
-        record = self.cache.get(netid, load_json=True)
+        uw_netid = user_info["uw_netid"]
+        record = self.cache.get(uw_netid, load_json=True)
 
         if not record:
             with self.fetch_participant_metric.time():
                 fields = [
-                    "netid",
+                    "uw_netid",
                     "record_id",
-                    "eligibility_screening_complete",
-                    "consent_form_complete",
-                    "enrollment_questionnaire_complete",
+                    "enrollment_questions_complete",
+#                    "eligibility_screening_complete",
+#                    "consent_form_complete",
+#                    "enrollment_questionnaire_complete",
                 ]
 
                 data = {
@@ -118,7 +119,7 @@ class REDCapClient:
                     "format": "json",
                     "type": "flat",
                     "csvDelimiter": "",
-                    "filterLogic": f'[netid] = "{netid}"',
+                    "filterLogic": f'[uw_netid] = "{uw_netid}"',
                     "fields": ",".join(map(str, fields)),
                     "rawOrLabel": "raw",
                     "rawOrLabelHeaders": "raw",
@@ -138,14 +139,14 @@ class REDCapClient:
 
                 if len(records) > 1:
                     raise BadRequest(
-                        f'Multiple records exist with NetID "{netid}": '
+                        f'Multiple records exist with NetID "{uw_netid}": '
                         f'{[r["record_id"] for r in records]}'
                     )
 
                 record = records[0]
 
             if self.redcap_registration_complete(record):
-                self.cache.set(netid, record)
+                self.cache.set(uw_netid, record)
 
         return record
 
@@ -208,6 +209,13 @@ class REDCapClient:
         """
         return 1 + (datetime.today() - self.settings.redcap_study_start_date).days
 
+    def get_the_current_week(self) -> int:
+        """
+        Returns the current program week to redirect the user to the correct first weekly event
+        with the first week starting at 1
+        """
+        return 1 + (datetime.today() - self.settings.redcap_study_start_date).days // 7
+
     def redcap_registration_complete(self, redcap_record: dict) -> bool:
         """
         Returns True if a given *redcap_record* shows a participant has completed
@@ -241,13 +249,15 @@ class REDCapClient:
             return False
 
         return (
-            is_complete("eligibility_screening", redcap_record)
-            and is_complete("consent_form", redcap_record)
-            and is_complete("enrollment_questionnaire", redcap_record)
+            is_complete("enrollment_questions", redcap_record)
+#            is_complete("eligibility_screening", redcap_record)
+#            and is_complete("consent_form", redcap_record)
+#            and is_complete("enrollment_questionnaire", redcap_record)
         )
 
     @time_redcap_request()
     def fetch_encounter_events_past_week(self, redcap_record: dict) -> List[dict]:
+#TODO: don't need this
         """
         Given a *redcap_record*, export the full list of related REDCap instances
         from the Encounter arm of the project that have occurred in the past week.
@@ -293,12 +303,14 @@ class REDCapClient:
         ]
 
     def one_week_ago(self) -> int:
+#TODO: don't need this
         """
         Return the REDCap instance instance currently representing one week ago.
         """
         return self.get_todays_repeat_instance() - 7
 
     def max_instance_testing_triggered(
+#TODO: don't need this
         self, redcap_record: List[dict]
     ) -> Optional[int]:
         """
@@ -319,6 +331,7 @@ class REDCapClient:
         return self._max_instance(events_testing_trigger_yes)
 
     def max_instance(
+#TODO: don't need this
         self,
         instrument: str,
         redcap_record: List[dict],
@@ -403,6 +416,7 @@ class REDCapClient:
         return self._max_instance(events_instrument_complete)
 
     def _max_instance(self, redcap_record: List[dict]) -> int:
+#TODO: don't need this
         """
         Internal helper method for :func:`max_instance`. Returns the repeat instance
         number associated with the most recent encounter in the given
@@ -463,6 +477,7 @@ class REDCapClient:
 
     @time_redcap_request()
     def create_new_testing_determination(self, redcap_record: dict):
+#TODO: don't need this
         """
         Given a *redcap_record* to import, creates a new Testing Determination form
         instance with some pre-filled data fit for a kiosk walk-in.
@@ -502,6 +517,7 @@ class REDCapClient:
         ), f"REDCap updated {len(response.json())} records, expected 1."
 
     def need_to_create_new_td_for_today(self, instances: Dict[str, int]) -> bool:
+#TODO: don't need this
         """
         Returns True if we need to create a new TD instance for today. Otherwise,
         returns False.
@@ -557,6 +573,7 @@ class REDCapClient:
         return False
 
     def need_to_create_new_kr_instance(self, instances: Dict[str, int]) -> bool:
+#TODO: don't need this
         """
         Returns True if we need to create a new KR instance for the target TD
         instance. Otherwise, returns False.
@@ -622,6 +639,7 @@ class REDCapClient:
         return False
 
     def kiosk_registration_link(
+#TODO: don't need this
         self, redcap_record: dict, instances: Dict[str, int]
     ) -> str:
         """
@@ -648,6 +666,7 @@ class REDCapClient:
         return self.generate_redcap_link(redcap_record, instance)
 
     def generate_redcap_link(self, redcap_record: dict, instance: int):
+#TODO: don't need this
         """
         Given a *redcap_record*, generate a link to the internal REDCap portal's
         Kiosk Registration form for the record's given REDCap repeat *instance*.

@@ -43,7 +43,7 @@ class AppBlueprint(Blueprint):
             remote_user = request.remote_user
             user_info = extract_user_info(request.environ)
 
-        if not (remote_user and user_info.get("netid")):
+        if not (remote_user and user_info.get("uw_netid")):
             raise InternalServerError("No remote user!")
 
         redcap_record = client.fetch_participant(user_info)
@@ -57,7 +57,7 @@ class AppBlueprint(Blueprint):
         # upstream survey. If they've completed it, REDCap will automatically direct
         # them to the next, uncompleted survey in the queue.
         event = "enrollment_arm_1"
-        instrument = "eligibility_screening"
+        instrument = "enrollment_questions"
         repeat_instance = None
 
         # If all enrollment event instruments are complete, point participants
@@ -65,16 +65,18 @@ class AppBlueprint(Blueprint):
         # If the participant has already completed the daily attestation,
         # REDCap will prevent the participant from filling out the survey again.
         if client.redcap_registration_complete(redcap_record):
-            event = "encounter_arm_1"
-            instrument = "daily_attestation"
-            repeat_instance = client.get_todays_repeat_instance()
+            current_week = str(client.get_the_current_week())
+            event = "week_" + current_week + "_arm_1"
+            instrument = "test_form"
+            repeat_instance = None
+            #repeat_instance = client.get_todays_repeat_instance()
 
-            if repeat_instance <= 0:
+            #if repeat_instance <= 0:
                 # This should never happen!
-                raise InternalServerError("Failed to create a valid repeat instance")
+            #    raise InternalServerError("Failed to create a valid repeat instance")
 
         # Generate a link to the appropriate questionnaire, and then redirect.
         survey_link = client.generate_survey_link(
-            redcap_record["record_id"], event, instrument, repeat_instance
+            redcap_record["record_id"], event, instrument
         )
         return redirect(survey_link)

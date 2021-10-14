@@ -9,14 +9,14 @@ def extract_user_info(environ: dict) -> Dict[str, str]:
     Keys of the returned dict match those used by our REDCap project.
     """
     return {
-        "netid": environ.get("uid", ""),
+        "uw_netid": environ.get("uid", ""),
         # This won't always be @uw.edu.
-        "email": environ.get("mail", ""),
+        "uw_email": environ.get("mail", ""),
         # Given name will include any middle initial/name.  Both name fields
         # will contain the preferred name parts, if set, otherwise the
         # administrative name parts.
-        "core_participant_first_name": environ.get("givenName", ""),
-        "core_participant_last_name": environ.get("surname", ""),
+        "first_name": environ.get("givenName", ""),
+        "last_name": environ.get("surname", ""),
         # Department is generally a colon-separated set of
         # increasingly-specific labels, starting with the School.
         "uw_school": environ.get("department", ""),
