@@ -1,5 +1,5 @@
 import json
-from typing import Any, Optional, Type, Union
+from typing import Any, Optional, Type
 
 from injector import inject, singleton
 from redis import Redis
@@ -11,16 +11,18 @@ from husky_musher.settings import AppSettings
 class Cache:
     """
     A cache that uses a redis interface to perform simple gets and sets,
-    with optional JSON-type conversion.
+    with optional JSON-type conversion. If there is no REDIS_HOST set
+    in the environment, a simple dictionary will be used instead (for local testing).
     """
+
     @inject
     def __init__(self, redis: Redis, settings: AppSettings):
         self.redis = redis
-        self.prefix = f'{settings.app_name}.'
+        self.prefix = f"{settings.app_name}:"
 
     def sanitize_key(self, key):
-        if not key.startswith(self.prefix):
-            return f'{self.prefix}{key}'
+        if key and not key.startswith(self.prefix):
+            return f"{self.prefix}{key}"
         return key
 
     @staticmethod
@@ -100,6 +102,7 @@ class MockRedis:
     For use when running without redis, so that there is
     no need for developers to install redis in order to maintain this application.
     """
+
     def __init__(self):
         self._values = {}
 
