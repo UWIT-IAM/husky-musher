@@ -3,7 +3,7 @@ formatters:
   default:
     format: "[%(levelname)s][%(asctime)s][%(module)s]: %(message)s"
   json:
-    '()': pythonjsonlogger.jsonlogger.JsonFormatter
+    '()': husky_musher.logging.JsonFormatter
 handlers:
   wsgi:
     level: INFO
@@ -25,8 +25,5 @@ loggers:
     handlers:
       - wsgi
   gunicorn.error:
-    handlers:
-      - gunicorn
-  gunicorn.error.app.unscoped:
     handlers:
       - gunicorn
