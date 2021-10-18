@@ -1,19 +1,15 @@
 [tool.poetry]
 name = "husky-musher"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Thomas Thorogood <goodtom@uw.edu>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = ">=3.8"
-id3c = {git = "https://github.com/seattleflu/id3c"}
-flask = "*"
-requests = "*"
-fsspec = "*"
-prometheus-flask-exporter = "*"
-diskcache = "*"
-python-json-logger = "*"
+python = ">=3.8,<3.10"
+flask = "^2.0.2"
+requests = "^2.26.0"
+prometheus-flask-exporter = "^0.18.3"
 gunicorn = "^20.1.0"
 Flask-Injector = "^0.13.0"
 injector = "^0.18.4"
@@ -21,9 +17,12 @@ gevent = "^21.8.0"
 uw-saml = "^1.0.20"
 redis = "^3.5.3"
 Flask-Session = "^0.4.0"
+redcap-client = "^0.1.2"
+PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.9b0"
+pytest = "^6.2.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

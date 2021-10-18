@@ -134,37 +134,40 @@ If you copy the following into a file (editing any variables necessary), you can
 save it to `local.env` which is ignored by git and consumed by default, if it exists.
 
 ```
-# Make sure to update the value of REDCAP_API_TOKEN
-REDCAP_API_TOKEN=<YOUR_API_TOKEN>
+REDCAP_API_TOKEN=<your api token>
 REDCAP_API_URL=https://redcap.iths.org/api/
 REDCAP_PROJECT_ID=43642
 REDCAP_EVENT_ID=9  # musher_test_event_arm_1
-
 REDCAP_STUDY_START_DATE=2021-10-12
+REDCAP_INSTRUMENT=test_form
 FLASK_APP=husky_musher.app
 FLASK_ENV=development
+USE_MOCK_IDP=1
+SAML_ENTITY_ID=https://musher.iamdev.s.uw.edu/saml
 
-#netid=<your_netid>
-#uid=<your_netid>@uw.edu
-uid=<your_netid>
-mail=<your_netid>@uw.edu
-givenName=<your_firstname>
-surname=<your_lastname>
-REMOTE_USER=<your_netid>@uw.edu
+# You may run a redis client locally; if so, you must
+# configure it to have a user of `husky-musher`. 
+# You can update the password if you want to.
+# ACL SETUSER husky-musher on +@all ~husky-musher:* >hello
+#REDIS_HOST=127.0.0.1
+#REDIS_PASSWORD=hello
+
+REMOTE_USER=<your email or netid>
+
+IDP_ATTR_uwnetid=<your netid>
+IDP_ATTR_email=<your email>
+IDP_ATTR_registeredGivenName=<your first name>
+IDP_ATTR_registeredSurname=<your last name>
+IDP_ATTR_homeDept=<your department>
+# affiliations must be a list in json format; no whitespace unless you
+# quote the entire value (but then you have to escape the inner quotes)
+IDP_ATTR_affiliations=["member","staff","student","employee"]
 ```
 
-## Pushing to the registry
+## Maintainer Information
 
-To push to the Github docker registry, you must
-have a Personal Access Token with the correct scopes, and
-permissions to push.
+For maintainers, see the [docs/](docs) directory!
 
-See [Github's official documentation on working with packages.](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry)
-
-
-```
-docker push ghcr.io/uwit-iam/husky-musher:<tag>
-```
 
 ## Attributions
 "[Paw Print](https://thenounproject.com/search/?q=dog+paw&i=3354750)" icon By Humantech from [the Noun Project](http://thenounproject.com/).

@@ -1,4 +1,5 @@
 import getpass
+import json
 import urllib.parse
 from logging import Logger
 from typing import Dict
@@ -15,7 +16,10 @@ from husky_musher.settings import AppSettings
 class SAMLBlueprint(Blueprint):
     @inject
     def __init__(
-        self, idp_config: UwIdp, settings: AppSettings, logger: Logger
+        self,
+        idp_config: UwIdp,
+        settings: AppSettings,
+        logger: Logger,
     ):
         super().__init__("saml", __name__, url_prefix="/saml")
         self.idp_config = idp_config
@@ -33,8 +37,9 @@ class SAMLBlueprint(Blueprint):
             f"Processing SAML POST request from {remote_ip} to access {dest_url} with POST: {post_args}"
         )
         attributes = uw_saml2.process_response(post_args, **kwargs)
-        session["uwnetid"] = attributes["uwnetid"]
-        self.logger.info(f"Signed in user {session['uwnetid']}")
+        session["attributes"] = json.dumps(attributes)
+        session["netid"] = attributes["uwnetid"]
+        self.logger.info(f"Signed in user {session['netid']}")
         return redirect(dest_url)
 
     def login(self, request: Request, session: LocalProxy):
@@ -49,11 +54,11 @@ class SAMLBlueprint(Blueprint):
         remote_ip = request.headers.get("X-Forwarded-For")
 
         if request.method == "GET":
-            args["return_to"] = acs_host
+            args["return_to"] = f"{acs_host}"
             self.logger.info(
                 f"Getting SAML redirect URL for {remote_ip} to SAML sign in with args {args}"
             )
-            url = uw_saml2.login_redirect(**args)
+            url = uw_saml2.login_redirect(**args, force_authn=True)
             return redirect(url)
 
         return self.process_saml_request(request, session, **args)
@@ -64,7 +69,16 @@ class SAMLBlueprint(Blueprint):
         return redirect("/")
 
 
-class MockSAMLBlueprint(SAMLBlueprint):
-    def process_saml_request(self, request: Request, session: LocalProxy, **kwargs):
-        session["uwnetid"] = getpass.getuser()
+class MockSAMLBlueprint(Blueprint):
+    @inject
+    def __init__(self):
+        super().__init__("mock-saml", __name__, url_prefix="/mock-saml")
+        self.add_url_rule(
+            "/login", view_func=self.process_saml_request, methods=["GET"]
+        )
+
+    @staticmethod
+    def process_saml_request(request: Request, session: LocalProxy, **kwargs):
+        session["netid"] = getpass.getuser()
+        session["attributes"] = json.dumps({"uid": getpass.getuser()})
         return redirect("/")

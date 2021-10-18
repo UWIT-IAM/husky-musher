@@ -21,7 +21,7 @@ ENV PROMETHEUS_MULTIPROC_DIR='/tmp/prometheus' \
     FLASK_ENV=development \
     PYTHONPATH=/app:$PYTHONPATH \
     APP_VERSION=${APP_VERSION}
-COPY logging.yaml gunicorn.conf.py ./
+COPY gunicorn.conf.py ./
 COPY husky_musher ./husky_musher
 RUN mkdir -pv $PROMETHEUS_MULTIPROC_DIR
 

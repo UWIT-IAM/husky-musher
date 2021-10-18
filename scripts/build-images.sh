@@ -13,12 +13,21 @@ function print_help {
    Options:
    -v, --version   Set a version for your build
 
-   --run
+   --run           Run the application locally, using the --env-file
    --env-file      Set a dotenv file to use when running the app locally;
-                   has no effect unless '--run' is specified
+                   has no effect unless '--run' is specified. Default: ${ENV_FILE}
+
+
+   --deploy        Deploy the script after building; not compatible with --run.
+                   See docs/operations for more information about deployed instances.
+
+   --test          Will run tests for the built app image; can be used with --deploy
+                   and --run; in both cases, the script will fail before
+                   deploying/running if tests fail.
 
    --deployment-stage   Set this to target a specific stage (e.g., dev, eval, prod)
-                        when building your deployment image. Defaults to "$DEPLOYMENT_STAGE"
+                        when building your deployment image. Defaults to
+                        "$DEPLOYMENT_STAGE".
 
    -h, --help      Show this message and exit
    -g, --debug     Show commands as they are executing
@@ -39,12 +48,18 @@ do
       shift
       APP_VERSION=$1
       ;;
+    --deploy)
+      DEPLOY=1
+      ;;
     --deployment-stage)
       shift
       DEPLOYMENT_STAGE="$1"
       ;;
     --run)
       RUN_DEPLOYMENT_IMAGE=1
+      ;;
+    --test)
+      RUN_TESTS=1
       ;;
     --env-file)
       shift
@@ -118,6 +133,17 @@ DEPLOYMENT_IMAGE_URI="${DOCKER_REPO}:deploy-${DEPLOYMENT_STAGE}.$(tag_timestamp)
 build_app_image
 build_deployment_image
 
+if [[ -n "${RUN_TESTS}" ]]
+then
+  deployment=$(get_deployment_image_uri)
+  docker build -f tests.Dockerfile \
+    --build-arg APP_SOURCE=${deployment} \
+    -t "${DOCKER_REPO}-tests" .
+  set -e
+  docker run "${DOCKER_REPO}-tests"
+  set +e
+fi
+
 if [[ -n "${RUN_DEPLOYMENT_IMAGE}" ]]
 then
   deployment=$(get_deployment_image_uri)
@@ -126,4 +152,9 @@ then
     $MOUNT \
     $(test ! -f "$ENV_FILE" || echo "--env-file ${ENV_FILE}") \
     -it -p 8000:8000 "${deployment}"
+fi
+
+if [[ -n "${DEPLOY}" ]]
+then
+  docker push $(get_deployment_image_uri)
 fi
