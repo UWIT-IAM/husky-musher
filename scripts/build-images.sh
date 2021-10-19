@@ -151,7 +151,7 @@ then
   docker run \
     $MOUNT \
     $(test ! -f "$ENV_FILE" || echo "--env-file ${ENV_FILE}") \
-    -it -p 8000:8000 "${deployment}"
+    -it -p 8000:8000 -p 6379:6379 "${deployment}"
 fi
 
 if [[ -n "${DEPLOY}" ]]
