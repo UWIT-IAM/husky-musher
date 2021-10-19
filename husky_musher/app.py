@@ -87,8 +87,8 @@ def register_error_handlers(app: Flask):
         return render_template("invalid_netid.html", netid=netid), InvalidNetId.code
 
     @app.errorhandler(Exception)
-    def handle_unexpected_error(error):
-        app.logger.error(f"Unexpected error occurred: {error}", exc_info=error)
+    def handle_unexpected_error(error: Exception):
+        app.logger.exception(f"Unexpected error occurred: {error}")
         return render_template("something_went_wrong.html"), 500
 
 

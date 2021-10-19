@@ -1,11 +1,13 @@
 import json
 from logging import Logger
 
-from flask import Blueprint, jsonify, redirect
+from flask import Blueprint, Request, jsonify, redirect, render_template
 from injector import inject
+from werkzeug.exceptions import BadRequest, MethodNotAllowed, Unauthorized
 from werkzeug.local import LocalProxy
 
 from husky_musher.settings import AppSettings
+from husky_musher.utils.cache import Cache
 from husky_musher.utils.redcap import REDCapClient
 from husky_musher.utils.shibboleth import (
     extract_user_info,
@@ -19,12 +21,14 @@ class AppBlueprint(Blueprint):
     """
 
     @inject
-    def __init__(self, settings: AppSettings, logger: Logger):
+    def __init__(self, settings: AppSettings, logger: Logger, cache: Cache):
         super().__init__("app", __name__)
         self.logger = logger
+        self.cache = cache
         self.settings = settings
         self.add_url_rule("/", view_func=self.render_redirect, methods=("GET",))
         self.add_url_rule("/status", view_func=self.render_status, methods=("GET",))
+        self.add_url_rule("/admin", view_func=self.render_admin, methods=("GET", "POST"))
 
     def render_status(self):
         return (
@@ -42,15 +46,11 @@ class AppBlueprint(Blueprint):
         client: REDCapClient,
         session: LocalProxy,
     ):
+        # All users of this application must be signed in
         if not session.get("netid"):
             return redirect("/saml/login")
 
-        # Get NetID and other attributes from Shibboleth data
-        if self.settings.in_development:
-            attributes = get_saml_attributes_from_env()
-        else:
-            attributes = json.loads(session["attributes"])
-
+        attributes = json.loads(session["attributes"])
         user_info = extract_user_info(attributes)
         redcap_record = client.fetch_participant(user_info)
 
@@ -79,3 +79,45 @@ class AppBlueprint(Blueprint):
             redcap_record["record_id"], event, instrument
         )
         return redirect(survey_link)
+
+    def _user_is_admin(self, session: LocalProxy) -> bool:
+        """
+        Checks whether the signed in user's session attributes
+        contain an admin group. If there are no admin groups configured,
+        always returns false.
+        """
+        groups = json.loads(session.get('attributes', '{}')).get('groups', [])
+        for g in self.settings.admin_user_groups:
+            if g in groups:
+                return True
+
+        return False
+
+    def _op_cache_delete(self, request: Request):
+        if request.method.upper() != 'POST':
+            raise MethodNotAllowed
+        netid = request.form.get('netid')
+        payload = {}
+        if netid:
+            self.cache.delete(netid)
+            payload['message'] = f'Deleted netid {netid} from the cache'
+        else:
+            payload['message'] = 'Error: No UW NetID supplied'
+        return payload
+
+    def render_admin(self, request: Request, session: LocalProxy):
+        # The presence of a netid entry indicates the user has signed in.
+        if not session.get('netid'):
+            # If they haven't, we redirect them to do so.
+            return redirect("/saml/login?return_to=/admin")
+
+        if not self._user_is_admin(session):
+            raise Unauthorized
+
+        context = {}
+        op = request.form.get('operation')
+        if op:
+            op_method = f'_op_{op}'
+            context[op] = getattr(self, op_method)(request)
+
+        return render_template('admin.html', **context)
