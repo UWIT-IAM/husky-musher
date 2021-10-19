@@ -1,0 +1,24 @@
+{% extends 'admin/_admin_function.html' %}
+{% block function %}
+    <div id="cache_delete" style="text-align:left">
+        <h3>Delete Cache Entry</h3>
+        <p class="instruction">
+            If you deleted a record from REDCap, you should clear the associated
+            netid from the Musher cache; otherwise, that user will receive an error
+            next time they try to fill out their REDCap survey.
+        </p>
+        <form id="cache_delete_form" method="POST">
+            <label>
+                UW NetID:
+                <input type="text" name="netid" placeholder="UW NetID">
+            </label>
+            <input type="hidden" name="operation" value="cache_delete">
+            <input type="submit" value="Expire cache entry">
+        </form>
+        <blockquote class="result">
+            {% if cache_delete %}
+                {{ cache_delete['message'] }}
+            {% endif %}
+        </blockquote>
+    </div>
+{% endblock %}

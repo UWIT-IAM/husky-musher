@@ -23,6 +23,26 @@ section {
   margin: 0 auto;
 }
 
+p.instruction {
+  font-size: 11pt;
+  padding: 6px;
+  background-color: #eeeeee;
+  border-radius: .5em;
+}
+
+div.admin-function {
+  border-bottom: solid 2px #4b2e83;
+  border-top: solid 2px #4b2e83;
+  border-radius: 1em;
+  padding: 1em;
+}
+
+div.admin-function .result {
+  font-family: monospace;
+  color: #4b2e83;
+  font-size: 10pt;
+}
+
 nav {
   border-bottom: 2px solid #ccc;
   padding: 0.2em 1em;
@@ -30,11 +50,6 @@ nav {
   overflow: hidden;
   box-sizing: border-box;
   min-height: 2rem;
-}
-
-form {
-  display: grid;
-  place-items: center;
 }
 
 button {
