@@ -1,5 +1,26 @@
 # Application Operations
 
+## Self-service non-developer operations
+
+### Add a user as an administrator
+
+**Only members of the UW-IT IAM team can do this**.
+
+- Go to the [UW Groups Service](https://groups.uw.edu)
+- Find the 'uw_iam_musher-admins' group (link intentionally omitted)
+- Add the required netid to the group
+
+### Delete a survey participant from the Musher cache
+
+**Only [admins](#add-a-user-as-an-administrator) may do this**.
+
+- Go to the `/admin` endpoint of the application
+- Enter the user's UW NetID under "Delete Cache Entry"
+- Click on `Expire cache entry`
+
+The update is immediate. The user's data will be refreshed when they next visit the app.
+The message will show as a success even if the user was not found in the cache.
+
 ## Manage dependencies
 
 ### Patch dependencies
