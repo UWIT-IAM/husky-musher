@@ -20,6 +20,7 @@ class AppSettings:
     redcap_instrument = os.environ.get("REDCAP_INSTRUMENT")
     saml_acs_path = os.environ.get("SAML_ACS_PATH")
     saml_entity_id = os.environ.get("SAML_ENTITY_ID")
+    saml_redirect_port = os.environ.get('SAML_REDIRECT_PORT')
     use_mock_idp = bool(os.environ.get("USE_MOCK_IDP"))
 
     session_cookie_name = os.environ.get("SESSION_COOKIE_NAME", "edu.uw.musher.session")
