@@ -98,6 +98,7 @@ class AppInjectorModule(Module):
     injector. In short: it injects dependencies that can be
     automagically injected.
     """
+
     @provider
     @singleton
     def provide_redis(self, settings: AppSettings, logger: logging.Logger) -> Redis:
@@ -115,9 +116,7 @@ class AppInjectorModule(Module):
                 # silently failing to set session information.
                 if not all(client.time() or not client.set("husky-musher:test", "ok")):
                     raise ConnectionError
-                logger.info(
-                    f"Successfully connected to redis."
-                )
+                logger.info(f"Successfully connected to redis.")
                 return client
             except Exception as e:
                 logger.error(

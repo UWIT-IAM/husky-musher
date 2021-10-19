@@ -46,13 +46,13 @@ class SAMLBlueprint(Blueprint):
     def login(self, request: Request, session: LocalProxy):
         session.clear()
         acs_hostname = urllib.parse.urlparse(request.host_url).hostname
-        protocol = 'https'
+        protocol = "https"
         # The port is only required when running locally either
         # via docker or by invoking flask directly. If this is set,
         # we assume that https will fail, and redirect via http instead.
         # TODO: This could be worked around by using docker-compose instead.
         if self.settings.saml_redirect_port:
-            protocol = 'http'
+            protocol = "http"
         acs_host = f"{protocol}://{acs_hostname}"
         acs_url = urllib.parse.urljoin(acs_host, self.settings.saml_acs_path)
         args = {
@@ -62,8 +62,8 @@ class SAMLBlueprint(Blueprint):
         remote_ip = request.headers.get("X-Forwarded-For")
 
         if request.method == "GET":
-            acs_port = self.settings.saml_redirect_port or ''
-            requested_return = request.args.get('return_to', '')
+            acs_port = self.settings.saml_redirect_port or ""
+            requested_return = request.args.get("return_to", "")
             args["return_to"] = f"{acs_host}{acs_port}{requested_return}"
             self.logger.info(
                 f"Getting SAML redirect URL for {remote_ip} to SAML sign in with args {args}"
@@ -90,7 +90,7 @@ class MockSAMLBlueprint(Blueprint):
     @staticmethod
     def process_saml_request(request: Request, session: LocalProxy, **kwargs):
         attrs = get_saml_attributes_from_env()
-        return_to = request.args.get('return_to', '/')
-        session["netid"] = attrs['uwnetid'] or getpass.getuser()
+        return_to = request.args.get("return_to", "/")
+        session["netid"] = attrs["uwnetid"] or getpass.getuser()
         session["attributes"] = json.dumps(attrs)
         return redirect(return_to)

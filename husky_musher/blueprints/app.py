@@ -28,7 +28,9 @@ class AppBlueprint(Blueprint):
         self.settings = settings
         self.add_url_rule("/", view_func=self.render_redirect, methods=("GET",))
         self.add_url_rule("/status", view_func=self.render_status, methods=("GET",))
-        self.add_url_rule("/admin", view_func=self.render_admin, methods=("GET", "POST"))
+        self.add_url_rule(
+            "/admin", view_func=self.render_admin, methods=("GET", "POST")
+        )
 
     def render_status(self):
         return (
@@ -86,7 +88,7 @@ class AppBlueprint(Blueprint):
         contain an admin group. If there are no admin groups configured,
         always returns false.
         """
-        groups = json.loads(session.get('attributes', '{}')).get('groups', [])
+        groups = json.loads(session.get("attributes", "{}")).get("groups", [])
         for g in self.settings.admin_user_groups:
             if g in groups:
                 return True
@@ -94,20 +96,20 @@ class AppBlueprint(Blueprint):
         return False
 
     def _op_cache_delete(self, request: Request):
-        if request.method.upper() != 'POST':
+        if request.method.upper() != "POST":
             raise MethodNotAllowed
-        netid = request.form.get('netid')
+        netid = request.form.get("netid")
         payload = {}
         if netid:
             self.cache.delete(netid)
-            payload['message'] = f'Deleted netid {netid} from the cache'
+            payload["message"] = f"Deleted netid {netid} from the cache"
         else:
-            payload['message'] = 'Error: No UW NetID supplied'
+            payload["message"] = "Error: No UW NetID supplied"
         return payload
 
     def render_admin(self, request: Request, session: LocalProxy):
         # The presence of a netid entry indicates the user has signed in.
-        if not session.get('netid'):
+        if not session.get("netid"):
             # If they haven't, we redirect them to do so.
             return redirect("/saml/login?return_to=/admin")
 
@@ -115,9 +117,9 @@ class AppBlueprint(Blueprint):
             raise Unauthorized
 
         context = {}
-        op = request.form.get('operation')
+        op = request.form.get("operation")
         if op:
-            op_method = f'_op_{op}'
+            op_method = f"_op_{op}"
             context[op] = getattr(self, op_method)(request)
 
-        return render_template('admin.html', **context)
+        return render_template("admin.html", **context)
