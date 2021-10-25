@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 from typing import Any, Dict
 
@@ -90,8 +89,9 @@ def get_saml_attributes_from_env() -> Dict[str, Any]:
         unscopedAffiliations becomes unscopd_affiliations
         (and so forth)
     """
+
     def import_value(string: str) -> Any:
-        if string and string.startswith('[') or string.startswith('{'):
+        if string and string.startswith("[") or string.startswith("{"):
             return json.loads(string)
         return string
 

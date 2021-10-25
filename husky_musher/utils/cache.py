@@ -96,6 +96,10 @@ class Cache:
         value = self._sanitize_value(value)
         self.redis.set(key, value, ex=expire_seconds)
 
+    def delete(self, key: str):
+        """Deletes an entry, if it exists. Nothing happens if not."""
+        self.redis.delete(self.sanitize_key(key))
+
 
 class MockRedis:
     """

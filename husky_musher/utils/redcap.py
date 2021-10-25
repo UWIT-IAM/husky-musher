@@ -81,15 +81,18 @@ class REDCapClient:
         self.settings = settings
         self.fetch_participant_metric = fetch_participant_metric
         self.metric_summary = metric_summary
-        self.logger = logger.getChild('redcap')
+        self.logger = logger.getChild("redcap")
         self.api_token = self.settings.redcap_api_token
         self.api_url = self.settings.redcap_api_url
 
-    def request(self,
-                method: str,
-                url: Optional[str] = None,
-                log_data: Optional[Iterable[str]] = None,
-                *args, **kwargs) -> Response:
+    def request(
+        self,
+        method: str,
+        url: Optional[str] = None,
+        log_data: Optional[Iterable[str]] = None,
+        *args,
+        **kwargs,
+    ) -> Response:
         """
         A wrapper around the requests call (ostensibly to 'POST')
         that logs minimal information about the data being transmitted
@@ -111,17 +114,21 @@ class REDCapClient:
         response = requests.request(method, url, *args, **kwargs)
         end_time = time.time()
         duration = round(end_time - start_time, 3)
-        message = f'[{method}] {response.status_code} {url} ({duration}s)'
-        if log_data and 'data' in kwargs:
-            logged_data = {k: v for k, v in kwargs['data'].items() if k in log_data}
+        message = f"[{method}] {response.status_code} {url} ({duration}s)"
+        if log_data and "data" in kwargs:
+            logged_data = {k: v for k, v in kwargs["data"].items() if k in log_data}
         else:
             logged_data = {}
         try:
             response.raise_for_status()
-            self.logger.info(message, extra={'data': logged_data, 'extra_keys': {'data'}})
+            self.logger.info(
+                message, extra={"data": logged_data, "extra_keys": {"data"}}
+            )
             return response
         except Exception:
-            self.logger.info(message, extra={'data': logged_data, 'extra_keys': {'data'}})
+            self.logger.info(
+                message, extra={"data": logged_data, "extra_keys": {"data"}}
+            )
             raise
 
     @time_redcap_request("fetch_participant (cached)")
@@ -163,7 +170,9 @@ class REDCapClient:
                     "returnFormat": "json",
                 }
 
-                response = self.request('post', data=data, log_data={'content', 'fields'})
+                response = self.request(
+                    "post", data=data, log_data={"content", "fields"}
+                )
                 records = response.json()
 
                 if not records:
@@ -203,7 +212,7 @@ class REDCapClient:
             "returnContent": "ids",
             "returnFormat": "json",
         }
-        response = self.request('post', data=data, log_data={'content'})
+        response = self.request("post", data=data, log_data={"content"})
         return response.json()[0]
 
     @time_redcap_request()
@@ -229,7 +238,9 @@ class REDCapClient:
         if instance:
             data["repeat_instance"] = str(instance)
 
-        response = self.request('post', data=data, log_data={'content', 'instrument', 'event', 'record'})
+        response = self.request(
+            "post", data=data, log_data={"content", "instrument", "event", "record"}
+        )
         return response.text
 
     def get_the_current_week(self) -> int:

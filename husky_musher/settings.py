@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 
@@ -20,7 +21,11 @@ class AppSettings:
     redcap_instrument = os.environ.get("REDCAP_INSTRUMENT")
     saml_acs_path = os.environ.get("SAML_ACS_PATH")
     saml_entity_id = os.environ.get("SAML_ENTITY_ID")
+    saml_redirect_port = os.environ.get("SAML_REDIRECT_PORT")
     use_mock_idp = bool(os.environ.get("USE_MOCK_IDP"))
+    admin_user_groups = json.loads(
+        os.environ.get("APP_ADMIN_GROUPS", '["uw_iam_musher-admins"]')
+    )
 
     session_cookie_name = os.environ.get("SESSION_COOKIE_NAME", "edu.uw.musher.session")
     session_lifetime = int(os.environ.get("SESSION_LIFETIME_SECONDS") or 60)

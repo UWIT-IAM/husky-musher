@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>
+    {% block title %}Admin Functions{% endblock %}
+</h2>
+<p>
+    The functions on this page allow self-service maintenance for some of this
+    application's data. This is only available to select users.
+</p>
+{% include 'admin/cache_delete.html' %}
+{% endblock %}

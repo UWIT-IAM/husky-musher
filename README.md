@@ -127,42 +127,9 @@ pyenv install 3.8.6
 
 ## Environment Variables
 
-Some REDCap information is necessary to fully test this application. You can still
-run the app without these variables, but it won't actually do anything.
+Environment variable documentation can be found in 
+[docs/configuration.md](docs/configuration.md).
 
-If you copy the following into a file (editing any variables necessary), you can
-save it to `local.env` which is ignored by git and consumed by default, if it exists.
-
-```
-REDCAP_API_TOKEN=<your api token>
-REDCAP_API_URL=https://redcap.iths.org/api/
-REDCAP_PROJECT_ID=43642
-REDCAP_EVENT_ID=9  # musher_test_event_arm_1
-REDCAP_STUDY_START_DATE=2021-10-12
-REDCAP_INSTRUMENT=test_form
-FLASK_APP=husky_musher.app
-FLASK_ENV=development
-USE_MOCK_IDP=1
-SAML_ENTITY_ID=https://musher.iamdev.s.uw.edu/saml
-
-# You may run a redis client locally; if so, you must
-# configure it to have a user of `husky-musher`. 
-# You can update the password if you want to.
-# ACL SETUSER husky-musher on +@all ~husky-musher:* >hello
-#REDIS_HOST=127.0.0.1
-#REDIS_PASSWORD=hello
-
-REMOTE_USER=<your email or netid>
-
-IDP_ATTR_uwnetid=<your netid>
-IDP_ATTR_email=<your email>
-IDP_ATTR_registeredGivenName=<your first name>
-IDP_ATTR_registeredSurname=<your last name>
-IDP_ATTR_homeDept=<your department>
-# affiliations must be a list in json format; no whitespace unless you
-# quote the entire value (but then you have to escape the inner quotes)
-IDP_ATTR_affiliations=["member","staff","student","employee"]
-```
 
 ## Maintainer Information
 
