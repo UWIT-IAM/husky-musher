@@ -55,18 +55,18 @@ def extract_affiliation(environ: dict) -> Dict[str, str]:
 
     affiliations = [a for a in environ.get("affiliations", []) if a != "member"]
 
-    result = {"affiliation": "", "affiliation_other": ""}
+    result = {"affiliation_capture": "", "affiliation_capture_oth": ""}
 
     for affiliation in ("student", "faculty", "staff"):
         if affiliation in affiliations:
-            result["affiliation"] = affiliation
+            result["affiliation_capture"] = affiliation
             return result
 
     if "employee" in affiliations:
-        result["affiliation"] = "staff"
+        result["affiliation_capture"] = "staff"
     elif len(affiliations) > 0:
-        result["affiliation"] = "other"
-        result["affiliation_other"] = ";".join(sorted(affiliations))
+        result["affiliation_capture"] = "other"
+        result["affiliation_capture_oth"] = ";".join(sorted(affiliations))
     return result
 
 
