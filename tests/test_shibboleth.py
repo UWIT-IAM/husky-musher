@@ -11,7 +11,7 @@ from husky_musher.utils.shibboleth import extract_affiliation, get_saml_attribut
     [
         (
             {"affiliations": ["member", "faculty", "employee", "alum"]},
-            {"affiliation": "faculty", "affiliation_capture_oth": ""},
+            {"affiliation_capture": "faculty", "affiliation_capture_oth": ""},
         ),
         (
             {"affiliations": ["member", "student", "staff"]},
