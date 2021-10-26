@@ -11,30 +11,30 @@ from husky_musher.utils.shibboleth import extract_affiliation, get_saml_attribut
     [
         (
             {"affiliations": ["member", "faculty", "employee", "alum"]},
-            {"affiliation": "faculty", "affiliation_other": ""},
+            {"affiliation": "faculty", "affiliation_capture_oth": ""},
         ),
         (
             {"affiliations": ["member", "student", "staff"]},
-            {"affiliation": "student", "affiliation_other": ""},
+            {"affiliation_capture": "student", "affiliation_capture_oth": ""},
         ),
         (
             {"affiliations": ["member", "faculty", "student"]},
-            {"affiliation": "student", "affiliation_other": ""},
+            {"affiliation_capture": "student", "affiliation_capture_oth": ""},
         ),
         (
             {"affiliations": ["member", "staff", "alum"]},
-            {"affiliation": "staff", "affiliation_other": ""},
+            {"affiliation_capture": "staff", "affiliation_capture_oth": ""},
         ),
         (
             {"affiliations": ["member", "employee"]},
-            {"affiliation": "staff", "affiliation_other": ""},
+            {"affiliation_capture": "staff", "affiliation_capture_oth": ""},
         ),
         (
             {"affiliations": ["member", "affiliate", "alum"]},
-            {"affiliation": "other", "affiliation_other": "affiliate;alum"},
+            {"affiliation_capture": "other", "affiliation_capture_oth": "affiliate;alum"},
         ),
-        ({"affiliations": ["member"]}, {"affiliation": "", "affiliation_other": ""}),
-        ({}, {"affiliation": "", "affiliation_other": ""}),
+        ({"affiliations": ["member"]}, {"affiliation_capture": "", "affiliation_capture_oth": ""}),
+        ({}, {"affiliation_capture": "", "affiliation_capture_oth": ""}),
     ],
 )
 def test_extract_affiliation(attributes, expected):
