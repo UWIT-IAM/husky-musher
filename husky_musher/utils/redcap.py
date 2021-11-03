@@ -242,6 +242,29 @@ class REDCapClient:
             "post", data=data, log_data={"content", "instrument", "event", "record"}
         )
         return response.text
+    
+    @time_redcap_request()
+    def generate_surveyqueue_link(
+        self, record_id: str
+    ) -> str:
+        """
+        Returns a generated survey queue link for the given  *record_id*.
+       
+        """
+        data = {
+            "token": self.api_token,
+            "content": "surveyQueueLink",
+            "format": "json",
+            "record": record_id,
+            "returnFormat": "json",
+        }
+
+
+
+        response = self.request(
+            "post", data=data, log_data={"content", "record"}
+        )
+        return response.text
 
     def get_the_current_week(self) -> int:
         """
