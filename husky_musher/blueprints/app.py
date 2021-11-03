@@ -66,20 +66,23 @@ class AppBlueprint(Blueprint):
         # them to the next, uncompleted survey in the queue.
         event = "enrollment_arm_1"
         instrument = "enrollment_questions"
-
+        survey_link = client.generate_survey_link(
+            redcap_record["record_id"], event, instrument
+        )
         # If all enrollment event instruments are complete, point participants
         # to today's daily attestation instrument.
         # If the participant has already completed the daily attestation,
         # REDCap will prevent the participant from filling out the survey again.
         if client.redcap_registration_complete(redcap_record):
-            current_week = str(client.get_the_current_week())
-            event = "week_" + current_week + "_arm_1"
-            instrument = "test_form"
+            #current_week = str(client.get_the_current_week())
+            #event = "week_" + current_week + "_arm_1"
+            #instrument = "test_form"
+            survey_link = client.generate_surveyqueue_link(
+                redcap_record["record_id"]
+            )
 
         # Generate a link to the appropriate questionnaire, and then redirect.
-        survey_link = client.generate_survey_link(
-            redcap_record["record_id"], event, instrument
-        )
+     
         return redirect(survey_link)
 
     def _user_is_admin(self, session: LocalProxy) -> bool:
