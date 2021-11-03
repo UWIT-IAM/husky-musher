@@ -216,7 +216,7 @@ class REDCapClient:
         return response.json()[0]
 
     @time_redcap_request()
-    def generate_survey_link(
+    def generate_enrollment_survey_link(
         self, record_id: str, event: str, instrument: str, instance: int = None
     ) -> str:
         """
@@ -259,8 +259,6 @@ class REDCapClient:
             "returnFormat": "json",
         }
 
-
-
         response = self.request(
             "post", data=data, log_data={"content", "record"}
         )
@@ -273,11 +271,14 @@ class REDCapClient:
         """
         return 1 + (datetime.today() - self.settings.redcap_study_start_date).days // 7
 
-    @staticmethod
-    def redcap_registration_complete(redcap_record: dict) -> bool:
+    def redcap_registration_complete(self, redcap_record: dict, netid: Optional[str] = None) -> bool:
         """
         Returns True if a given *redcap_record* shows a participant has completed
         the enrollment surveys. Otherwise, returns False.
+
+        Once the user has registered, we will add this information to the cache,
+        so that we can use this information for other decision trees without
+        having to generate extra API calls.
 
         >>> self.redcap_registration_complete(None)
         False
@@ -297,4 +298,13 @@ class REDCapClient:
             'enrollment_questions_complete': '2'})
         True
         """
-        return redcap_record and is_complete("enrollment_questions", redcap_record)
+        registration_cache_key = f'{netid}.registrationComplete'
+        # The stored value will be either `true` or `false`;
+        # loading that as json will convert to pythonic True or False;
+        # if the key has not been set, this will return `None`.
+        if netid and self.cache.get(registration_cache_key, load_json=True):
+            return True
+        is_complete_ = redcap_record and is_complete("enrollment_questions", redcap_record)
+        if netid and is_complete_:
+            self.cache.set(registration_cache_key, value=True, save_json=True)
+        return is_complete_

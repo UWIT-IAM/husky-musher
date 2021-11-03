@@ -49,7 +49,9 @@ class AppBlueprint(Blueprint):
         session: LocalProxy,
     ):
         # All users of this application must be signed in
-        if not session.get("netid"):
+        netid = session.get('netid')
+
+        if not netid:
             return redirect("/saml/login")
 
         attributes = json.loads(session["attributes"])
@@ -61,29 +63,26 @@ class AppBlueprint(Blueprint):
             new_record_id = client.register_participant(user_info)
             redcap_record = {"record_id": new_record_id}
 
+        record_id = redcap_record.get('record_id')
+
         # Because of REDCap's survey queue logic, we can point a participant to an
         # upstream survey. If they've completed it, REDCap will automatically direct
         # them to the next, uncompleted survey in the queue.
         event = "enrollment_arm_1"
         instrument = "enrollment_questions"
-        survey_link = client.generate_survey_link(
-            redcap_record["record_id"], event, instrument
-        )
         # If all enrollment event instruments are complete, point participants
         # to today's daily attestation instrument.
         # If the participant has already completed the daily attestation,
         # REDCap will prevent the participant from filling out the survey again.
-        if client.redcap_registration_complete(redcap_record):
-            #current_week = str(client.get_the_current_week())
-            #event = "week_" + current_week + "_arm_1"
-            #instrument = "test_form"
-            survey_link = client.generate_surveyqueue_link(
-                redcap_record["record_id"]
+        if client.redcap_registration_complete(redcap_record, netid=netid):
+            return redirect(client.generate_surveyqueue_link(
+                record_id,
+            ))
+        return redirect(
+            client.generate_enrollment_survey_link(
+                record_id, event, instrument
             )
-
-        # Generate a link to the appropriate questionnaire, and then redirect.
-     
-        return redirect(survey_link)
+        )
 
     def _user_is_admin(self, session: LocalProxy) -> bool:
         """
@@ -105,6 +104,7 @@ class AppBlueprint(Blueprint):
         payload = {}
         if netid:
             self.cache.delete(netid)
+            self.cache.delete(f'{netid}.registrationComplete')
             payload["message"] = f"Deleted netid {netid} from the cache"
         else:
             payload["message"] = "Error: No UW NetID supplied"

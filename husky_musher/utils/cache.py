@@ -26,7 +26,7 @@ class Cache:
         return key
 
     @staticmethod
-    def _sanitize_value(value: Any):
+    def _sanitize_value(value: Any, force_json: bool = False):
         """
         If the value is not already of a type supported by redis,
         assume it to be a something json-serializable, and attempt
@@ -41,7 +41,7 @@ class Cache:
         >>> Cache._sanitize_value('123')
         '123'
         """
-        if not isinstance(value, (bytes, str, int, float)):
+        if force_json or not isinstance(value, (bytes, str, int, float)):
             return json.dumps(value)
         return value
 
@@ -73,7 +73,7 @@ class Cache:
             return cast_as(value)
         return value
 
-    def set(self, key: str, value: Any, expire_seconds: Optional[int] = None):
+    def set(self, key: str, value: Any, expire_seconds: Optional[int] = None, save_json: bool = False):
         """
         Adds an entry to the cache. If the entry is a serializable object,
         it will be converted to json. Otherwise, its underlying type will
@@ -93,7 +93,7 @@ class Cache:
         TypeError: Object of type set is not JSON serializable
         """
         key = self.sanitize_key(key)
-        value = self._sanitize_value(value)
+        value = self._sanitize_value(value, force_json=save_json)
         self.redis.set(key, value, ex=expire_seconds)
 
     def delete(self, key: str):

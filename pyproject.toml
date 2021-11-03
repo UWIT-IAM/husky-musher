@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "husky-musher"
-version = "0.4.0"
+version = "0.4.1"
 description = ""
 authors = ["Thomas Thorogood <goodtom@uw.edu>"]
 license = "MIT"
